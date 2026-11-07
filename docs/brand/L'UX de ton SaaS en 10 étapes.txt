@@ -1,0 +1,42 @@
+Les designers UX vont me détester, mais voici toutes les étapes, dans l'ordre, pour construire l'UX de ton SaaS. Après ça, tu n'auras plus aucune excuse.
+
+
+Étape 1 – Définir le problème
+La première étape, c'est de définir le problème que tu résous, de façon précise. Pas un truc vague du type « on aide les entreprises à mieux gérer leurs projets », mais quelque chose de beaucoup plus précis. Par exemple : « on aide les freelances à envoyer des devis signés en moins de 5 minutes ». C'est précis, et c'est concret.
+
+
+Étape 2 – Identifier la fonctionnalité principale
+Tu identifies la fonctionnalité principale, donc celle qui résout directement cette douleur. Une seule : pas 2, pas 3. Celle sans laquelle ton produit n'a plus de raison d'être.
+
+
+Étape 3 – Hiérarchiser les fonctionnalités
+Tu hiérarchises toutes les fonctionnalités autour d'elle. Chaque fonctionnalité doit exister pour soutenir cette fonctionnalité principale, et c'est pas l'inverse. Si une feature ne sert pas cette vision, elle n'a pas sa place en priorité.
+
+
+Étape 4 – Construire le user flow
+Construis le user flow autour de cette fonctionnalité principale. À chaque fois que l'utilisateur arrive dans ton SaaS, que fait-il ? Étape par étape, pas de manière idéale, mais de manière réaliste. Qu'est-ce qu'il voit ? Qu'est-ce qu'il fait ? Qu'est-ce qu'il peut faire ?
+
+
+Étape 5 – Créer la navigation principale
+Crée la navigation principale autour de ce parcours. Ta navigation doit refléter le chemin naturel de ton utilisateur et ce qu'il veut accomplir — pas ton architecture technique ni tes catégories internes.
+
+
+Étape 6 – Structurer les chemins secondaires
+Une fois le chemin principal défini, tu mapes tous les parcours possibles : les cas limites, les erreurs, les raccourcis. Chaque destination doit être claire.
+
+
+Étape 7 – Définir les actions et les micro-victoires
+Quels sont les moments où ton utilisateur doit ressentir qu'il avance ? Chaque action clé doit être accompagnée d'un feedback positif : un message ou une animation, pas besoin de confettis partout. Ce sont ces micro-victoires qui construisent l'habitude.
+
+Étape 8 – Travailler les notifications (si nécessaire)
+Pas de notifications par défaut. Seulement celles qui servent l'utilisateur à revenir au bon moment, pour la bonne raison. Crois-moi, une notification mal placée, c'est pire qu'une absence de notification.
+
+Étape 9 – Construire l'onboarding
+Construis l'onboarding pour amener l'utilisateur le plus rapidement possible à l'action-clé. L'onboarding, c'est pas une visite guidée de ton produit : c'est lui faire vivre la première valeur concrète le plus rapidement possible. Tout ce qui ralentit ce chemin, tu l'enlèves.
+
+Étape 10 – Mettre en place une découverte progressive
+Mets en place une découverte progressive de chaque élément du produit. Une fois que l'utilisateur a vécu sa première valeur, il peut commencer à découvrir le reste : des tooltips contextuels, des suggestions au bon moment, des emails de découverte bien ciblés, etc.
+
+
+Conclusion
+Ces 10 étapes, tu ne les appliqueras pas à 100 % du premier coup : tu vas itérer, revenir en arrière. Mais en suivant cette méthode, tu évites de créer une interface belle sur le papier, mais incompréhensible pour celui qui l'utilise. 

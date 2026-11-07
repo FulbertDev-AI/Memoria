@@ -1,0 +1,50 @@
+===================================================================
+                  CHARTE GRAPHIQUE & PALETTE DE COULEURS
+                             PROJET : KOLA
+===================================================================
+
+1. COULEURS PRINCIPALES DE L'INTERFACE (EXTRAITES DE L'IMAGE)
+-------------------------------------------------------------------
+- BLEU ÉLECTRIQUE (Couleur Principale / Primary)
+  • Code HEX : #3051A0
+  • Usage : Boutons d'action (CTA), en-têtes, icônes principales,
+            logo, éléments d'accentuation et états actifs.
+
+- BLANC CASSÉ (Couleur de Fond / Background)
+  • Code HEX : #EFF0F5
+  • Usage : Arrière-plan global de la PWA, fonds de cartes/cards,
+            zones de conteneurs (offre un meilleur confort visuel
+            sur le terrain au soleil que le blanc pur).
+
+
+2. COULEURS SECONDAIRES & NEUTRES RECOMMANDÉES
+-------------------------------------------------------------------
+- NOIR / TEXTE SOMBRE (Text Main)
+  • Code HEX : #000000 (ou #1E1E1E)
+  • Usage : Titres, textes principaux, montants financiers,
+            lisibilité haute performance.
+
+- BLANC PUR (Surface Clean)
+  • Code HEX : #FFFFFF
+  • Usage : Arrière-plan des formulaires, modales, éléments à
+            faire ressortir nettement du fond blanc cassé.
+
+
+3. COULEURS D'ÉTAT & FONCTIONNELLES (DESIGN SYSTEM PWA)
+-------------------------------------------------------------------
+- SUCCÈS (Validation / Dépôt Réussi)
+  • Code HEX : #10B981 (Vert Émeraude)
+
+- AVERTISSEMENT (En attente / Signalement)
+  • Code HEX : #F59E0B (Orange Ambre)
+
+- ERREUR (Annulation / Solde Insuffisant)
+  • Code HEX : #EF4444 (Rouge Éclatant)
+
+
+4. USAGE DANS LES COMPOSANTS CSS / TAILWIND
+-------------------------------------------------------------------
+--color-primary: #3051A0;
+--color-bg-light: #EFF0F5;
+--color-text-dark: #1E1E1E;
+===================================================================
