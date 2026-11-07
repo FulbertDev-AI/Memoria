@@ -3,6 +3,7 @@ import Image from "next/image";
 import { requireUser } from "@/lib/auth/session";
 import { SignOutButton } from "@/components/auth/auth-forms";
 import { getAccountTypeLabel } from "@/features/auth/schemas";
+import { brand } from "@/config/brand";
 
 export default async function DashboardPage() {
   const { user } = await requireUser();
@@ -11,12 +12,12 @@ export default async function DashboardPage() {
     <main className="min-h-screen px-4 py-8 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-5xl">
         <header className="flex flex-wrap items-center justify-between gap-4 border-b border-[var(--border)] pb-6">
-          <Link href="/" aria-label="MEMORIA, accueil">
+          <Link href="/" aria-label={`${brand.name}, accueil`}>
             <Image
-              src="/brand/memoria-logo.webp"
-              alt="MEMORIA"
-              width={200}
-              height={48}
+              src={brand.logoTransparent}
+              alt={brand.name}
+              width={903}
+              height={276}
               priority
               className="h-10 w-[168px] object-contain object-left"
             />
@@ -38,7 +39,7 @@ export default async function DashboardPage() {
             Bonjour {user.name}
           </h1>
           <p className="mt-3 max-w-2xl text-base leading-7 text-[#202124]/65">
-            Votre compte MEMORIA est prêt. Les outils de gestion d’événements seront disponibles dans une prochaine étape du projet.
+            Votre compte {brand.name} est prêt. Les outils de gestion d’événements seront disponibles dans une prochaine étape du projet.
           </p>
           <div className="mt-8 rounded-xl border border-[var(--border)] bg-white p-6">
             <h2 className="text-lg font-semibold text-[#202124]">Votre profil</h2>

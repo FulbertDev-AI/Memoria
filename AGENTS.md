@@ -1,8 +1,8 @@
-# MEMORIA — RÈGLES DE DÉVELOPPEMENT ET CAHIER DES CHARGES
+# Memooria — RÈGLES DE DÉVELOPPEMENT ET CAHIER DES CHARGES
 
 ## 1. RÔLE ET OBJECTIF
 
-Tu es l'agent principal chargé de concevoir, développer, tester et documenter MEMORIA.
+Tu es l'agent principal chargé de concevoir, développer, tester et documenter Memooria.
 
 Tu interviens comme une équipe expérimentée composée de :
 - Product Manager.
@@ -128,11 +128,11 @@ Les données de démonstration doivent provenir de seeders identifiés.
 
 ## 3. PRÉSENTATION DU PRODUIT
 
-**Nom :** MEMORIA
+**Nom :** Memooria
 
 **Signature :** Every moment, remembered.
 
-MEMORIA est une plateforme SaaS de création et de gestion d'événements, d'invitations numériques, de confirmations de présence, de gestion des participants et de collecte, d'organisation et de partage de photos et vidéos.
+Memooria est une plateforme SaaS de création et de gestion d'événements, d'invitations numériques, de confirmations de présence, de gestion des participants et de collecte, d'organisation et de partage de photos et vidéos.
 
 Sa proposition de valeur :
 
@@ -167,11 +167,11 @@ Les utilisateurs ciblés sont :
 
 ### 4.1 Logo
 
-Le logo MEMORIA fourni par le propriétaire du projet est la référence officielle.
+Le logo Memooria fourni par le propriétaire du projet est la référence officielle.
 
 Il comporte :
 - Un symbole M stylisé orange.
-- Un wordmark MEMORIA charbon.
+- Un wordmark Memooria charbon.
 - Un obturateur photographique intégré dans le « o ».
 
 Ne pas redessiner arbitrairement le logo.
@@ -451,7 +451,7 @@ Il peut :
 
 ### Participant ou invité
 
-Aucun compte MEMORIA ne doit être obligatoire pour répondre à une invitation.
+Aucun compte Memooria ne doit être obligatoire pour répondre à une invitation.
 
 Il peut :
 - Ouvrir une invitation.
@@ -496,7 +496,7 @@ Texte principal proposé :
 
 Description :
 
-« Créez de belles invitations, retrouvez vos invités, partagez vos photos et rassemblez tous vos souvenirs au même endroit. Avec MEMORIA, chaque moment compte. »
+« Créez de belles invitations, retrouvez vos invités, partagez vos photos et rassemblez tous vos souvenirs au même endroit. Avec Memooria, chaque moment compte. »
 
 Les boutons principaux doivent conduire à des parcours réels.
 
@@ -859,7 +859,7 @@ Prévoir des modèles pour :
 - Galerie publiée.
 - Souvenirs disponibles.
 
-Créer des templates HTML respectant l'identité MEMORIA.
+Créer des templates HTML respectant l'identité Memooria.
 
 ### WhatsApp
 
@@ -1216,7 +1216,7 @@ Prévoir notamment :
 `PAYMENT_PROVIDER=`
 `PAYMENT_SECRET_KEY=`
 `PAYMENT_WEBHOOK_SECRET=`
-`NEXT_PUBLIC_APP_NAME=MEMORIA`
+`NEXT_PUBLIC_APP_NAME=Memooria`
 
 Adapter les noms aux bibliothèques et services réellement choisis.
 

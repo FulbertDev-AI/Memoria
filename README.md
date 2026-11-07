@@ -1,6 +1,6 @@
-# MEMORIA
+# Memooria
 
-MEMORIA rassemble les invitations, les réponses des invités et les souvenirs d’un événement dans un même espace. Le dépôt est actuellement au socle de la phase 3 : base de données, comptes, sessions et permissions d’organisation.
+Memooria rassemble les invitations, les réponses des invités et les souvenirs d’un événement dans un même espace. Le dépôt est actuellement au socle de la phase 3 : base de données, comptes, sessions et permissions d’organisation.
 
 ## État actuel
 
@@ -30,10 +30,10 @@ L’application nécessite PostgreSQL et un serveur SMTP pour effectuer les parc
 Si Docker est installé, une instance de développement peut être démarrée avec :
 
 ```powershell
-docker run --name memoria-postgres `
-  -e POSTGRES_USER=memoria `
+docker run --name memooria-postgres `
+  -e POSTGRES_USER=memooria `
   -e POSTGRES_PASSWORD=mot_de_passe_local `
-  -e POSTGRES_DB=memoria `
+  -e POSTGRES_DB=memooria `
   -p 5432:5432 `
   -d postgres:16
 ```
@@ -69,7 +69,7 @@ Collez la valeur générée dans `AUTH_SECRET`. Ne la commitez jamais. Les fichi
 | `SMTP_USER` | Oui pour les e-mails | Identifiant SMTP |
 | `SMTP_PASSWORD` | Oui pour les e-mails | Mot de passe SMTP |
 | `SMTP_FROM_EMAIL` | Oui pour les e-mails | Adresse d’expédition vérifiée |
-| `SMTP_FROM_NAME` | Non | Nom affiché à l’expéditeur, par défaut `MEMORIA` |
+| `SMTP_FROM_NAME` | Non | Nom affiché à l’expéditeur, par défaut `Memooria` |
 | `SEED_ADMIN_EMAIL` | Pour le seed admin | Adresse d’un compte déjà inscrit et vérifié |
 
 ## Base de données et Prisma
@@ -152,7 +152,7 @@ Les tests actuels couvrent les validations d’authentification et les règles d
 - Les demandes de réinitialisation répondent avec un message neutre pour ne pas révéler si une adresse est inscrite.
 - Le seed n’introduit aucun mot de passe de démonstration ni secret dans le code.
 - L’inscription dépend du SMTP configuré ; elle n’est jamais présentée comme un envoi effectif sans confirmation du fournisseur.
-- Un service PostgreSQL local répond sur le port 5432, mais les identifiants actuels de `DATABASE_URL` sont refusés (Prisma P1000) ; la migration n’a donc pas été appliquée. Corrigez la variable localement puis relancez `npm run db:deploy`.
+- La migration PostgreSQL n’a pas encore été confirmée après la mise à jour locale de `DATABASE_URL` ; son résultat sera ajouté au suivi dès la prochaine tentative.
 - Des paramètres SMTP sont présents dans l’environnement local, mais aucun e-mail réel n’a été envoyé ni confirmé. Vérifiez le fournisseur avec un test contrôlé avant tout déploiement.
 - L’audit npm actuel signale des avis HIGH dans la chaîne de dépendances Prisma 6. La correction proposée implique une mise à niveau majeure vers Prisma 7 ; cette migration reste à évaluer et à valider avant déploiement.
 

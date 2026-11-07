@@ -7,6 +7,7 @@ import {
   ShieldCheck,
   Users,
 } from "lucide-react";
+import { brand } from "@/config/brand";
 
 const features = [
   {
@@ -80,14 +81,14 @@ const plans = [
 
 const faqs = [
   {
-    question: "MEMORIA est-il adapté aux événements privés comme aux conférences ?",
+    question: `${brand.name} est-il adapté aux événements privés comme aux conférences ?`,
     answer:
       "Oui. La plateforme est pensée pour les mariages, anniversaires, séminaires, festivals et événements professionnels avec des parcours adaptés à chaque type.",
   },
   {
     question: "Les invités doivent-ils créer un compte pour répondre au RSVP ?",
     answer:
-      "Non. Un invité peut répondre directement depuis une invitation publique, sans compte MEMORIA obligatoire.",
+      `Non. Un invité peut répondre directement depuis une invitation publique, sans compte ${brand.name} obligatoire.`,
   },
   {
     question: "Comment les photos sont-elles sécurisées ?",
@@ -95,7 +96,7 @@ const faqs = [
       "Les médias sont stockés avec des règles d’accès strictes, des liens privés et une modération possible avant publication.",
   },
   {
-    question: "Puis-je utiliser MEMORIA pour des collaborations photographes ?",
+    question: `Puis-je utiliser ${brand.name} pour des collaborations photographes ?`,
     answer:
       "Oui. Les photographes et vidéastes peuvent être invités sur un évènement, accepter la collaboration et gérer les uploads au bon endroit.",
   },
@@ -106,12 +107,12 @@ export default function Home() {
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[rgba(245,246,245,0.9)] backdrop-blur-sm">
         <div className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-y-3 px-4 py-4 sm:px-6 lg:px-8">
-          <a href="#accueil" aria-label="MEMORIA, accueil" className="shrink-0">
+          <a href="#accueil" aria-label={`${brand.name}, accueil`} className="shrink-0">
             <Image
-              src="/brand/memoria-logo.webp"
-              alt="MEMORIA"
-              width={200}
-              height={48}
+              src={brand.logoTransparent}
+              alt={brand.name}
+              width={903}
+              height={276}
               priority
               className="h-10 w-[168px] object-contain object-left"
             />
@@ -162,7 +163,7 @@ export default function Home() {
               </h1>
 
               <p className="mt-6 max-w-xl text-lg leading-8 text-[#202124]/70">
-                Créez de belles invitations, retrouvez vos invités, partagez vos photos et rassemblez tous vos souvenirs au même endroit. Avec MEMORIA, chaque moment compte.
+                Créez de belles invitations, retrouvez vos invités, partagez vos photos et rassemblez tous vos souvenirs au même endroit. Avec {brand.name}, chaque moment compte.
               </p>
 
               <div className="mt-8 flex flex-col gap-4 sm:flex-row">
@@ -393,11 +394,11 @@ export default function Home() {
         <div className="mx-auto flex max-w-7xl flex-col gap-8 px-4 py-10 sm:px-6 lg:flex-row lg:items-center lg:justify-between lg:px-8">
           <div>
             <Image
-              src="/brand/memoria-logo.webp"
-              alt="MEMORIA"
-              width={200}
-              height={48}
-              className="h-10 w-[168px] rounded bg-white object-contain object-left"
+              src={brand.logoOnWhite}
+              alt={brand.name}
+              width={1827}
+              height={560}
+              className="h-10 w-[168px] rounded object-contain object-left"
             />
             <p className="mt-4 max-w-md text-sm leading-7 text-white/65">
               De la première invitation au dernier souvenir, tout votre évènement au même endroit.

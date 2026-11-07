@@ -1,4 +1,4 @@
-# MEMORIA — Project Status
+# Memooria — Project Status
 
 ## État des phases
 
@@ -6,7 +6,7 @@
 |---|---|
 | 1 — Audit et planification | Terminée |
 | 2 — Fondations et design system | Terminée |
-| 3 — Base de données et authentification | En cours de validation, bloquée par la configuration locale PostgreSQL/SMTP |
+| 3 — Base de données et authentification | Migration appliquée ; tests d’intégration et e-mails restent à valider |
 | 4 — Site vitrine | Réalisée partiellement en phase 2 ; validation à reprendre dans l’ordre prévu |
 | 5 — Organisations et événements | Non commencée |
 | 6 — Invitations et RSVP | Non commencée |
@@ -28,7 +28,7 @@
 
 ### Décisions techniques importantes
 - Utiliser Next.js App Router avec TypeScript strict.
-- Construire la landing page vitrine MEMORIA en français, avec une identité premium et sans dégradés.
+- Construire la landing page vitrine Memooria en français, avec une identité premium et sans dégradés.
 - Créer la base du design system en variables CSS + Tailwind, en cohérence avec la palette orange/charbon de la marque.
 - Préparer la base front pour les prochaines phases d’authentification, événements et gestion de contenus.
 
@@ -41,7 +41,7 @@
 ### Tâches terminées
 - Mise à jour du layout global avec metadata, police Inter/Manrope et couleurs de marque.
 - Ajout d’un theme CSS cohérent et support du respect de `prefers-reduced-motion`.
-- Refonte de la page d’accueil en landing page SaaS MEMORIA alignée sur le brief.
+- Refonte de la page d’accueil en landing page SaaS Memooria alignée sur le brief.
 - Integration du logo de la marque dans l’header et le footer.
 - Validation du build productif et du lint.
 
@@ -58,16 +58,25 @@
 - Phase 1 et phase 2 validées.
 - Phase 3 en cours à la demande du propriétaire.
 
+## Rebranding Memooria
+
+- Nom de marque mis à jour en Memooria dans l’interface, les métadonnées, Better Auth, les e-mails et la documentation.
+- Logo transparent utilisé sur les surfaces claires ; le logo JPG fourni avec fond blanc est utilisé sur les surfaces sombres.
+- Le favicon a été régénéré à partir du symbole du dernier logo transparent fourni.
+- Vérification complète après mise à jour des fichiers de logo : lint, TypeScript, 9 tests unitaires et build de production réussis.
+- Les noms de cookies et de client Prisma ont été renommés ; le schéma et les données PostgreSQL restent inchangés.
+- La migration initiale a été appliquée avec succès à la base locale ; celle-ci conserve son nom technique existant `memoria`.
+
 ## Retouche UX et identité de marque — avant la phase 3
 
 ### Références revues
-- Nouveau logo officiel : `public/brand/Logo memoria.jpg`.
+- Nouveau logo officiel fourni par le propriétaire : `public/brand/New logo memooria sans arrière plan.png` et `public/brand/New Logo Memooria.jpg`.
 - Directives UX : `docs/brand/L'UX de ton SaaS en 10 étapes.txt`.
 - Palette de référence : `docs/brand/Color-palette.txt`.
 
 ### Changements effectués
-- Création d’une déclinaison horizontale optimisée du logo pour les interfaces et d’un pictogramme dérivé pour le favicon.
-- Remplacement du favicon Next.js par le symbole officiel MEMORIA.
+- Utilisation des deux derniers logos fournis directement dans les interfaces ; favicon dérivé du symbole orange.
+- Remplacement du favicon Next.js par le symbole officiel Memooria.
 - Remplacement des anciennes références au logo Kola dans la page.
 - Suppression de la pastille « Every moment, remembered. », des chiffres de démonstration et des badges décoratifs.
 - Simplification de l’aperçu produit et des blocs d’offres ; les tarifs ne sont pas inventés.
@@ -77,11 +86,11 @@
 ### Vérifications
 - `npm.cmd run lint` → OK.
 - `npm.cmd run build` → OK après correction du format RGBA de l’icône ICO.
-- Logo horizontal et pictogramme dérivés vérifiés visuellement.
+- Dimensions des nouveaux logos vérifiées ; le rendu du favicon sera confirmé par le build.
 - Les fichiers de marque fournis restent inchangés.
 
 ### Prochaine tâche
-- Configurer PostgreSQL et SMTP, appliquer la migration, puis tester les parcours d’authentification de bout en bout.
+- Valider les tests d’intégration PostgreSQL et les parcours d’authentification ; vérifier SMTP avec un test contrôlé si nécessaire.
 
 ## Phase 3 — Base de données et authentification
 
@@ -112,7 +121,7 @@
 - Smoke tests HTTP : formulaires d’auth accessibles (200), API de session anonyme (200/null), dashboard anonyme redirigé vers `/connexion` (307).
 
 ### Blocages externes
-- Le service PostgreSQL local est actif et la `DATABASE_URL` est présente, mais PostgreSQL refuse les identifiants configurés (Prisma P1000). La migration n’a donc pas été appliquée.
+- La migration `20261107150000_initial_auth_organization` a été appliquée avec succès après la mise à jour locale de `DATABASE_URL`.
 - Les paramètres SMTP sont présents dans l’environnement local, mais aucun e-mail n’a été envoyé et l’accès au fournisseur n’a pas été vérifié.
 - Les tests d’intégration de persistance, les parcours d’inscription/connexion réels et l’isolation avec PostgreSQL restent à exécuter après configuration locale.
 - `npm audit --omit=dev` signale 4 vulnérabilités HIGH dans la chaîne Prisma (`prisma`, `@prisma/config`, `deepmerge-ts`, `effect`). La correction automatique proposée impose une mise à niveau majeure vers Prisma 7 ; aucune mise à niveau risquée n’a été appliquée sans migration et validation dédiées.
@@ -120,4 +129,4 @@
 ### État de validation
 - Le code de la phase 3 est implémenté.
 - La phase 3 reste ouverte tant que migrations, e-mails, tests d’intégration et parcours d’authentification n’ont pas été vérifiés avec des services configurés.
-- Action requise : corriger localement les informations d’accès PostgreSQL dans `.env`, puis relancer `npm run db:deploy`.
+- La phase 3 reste ouverte tant que les tests d’intégration PostgreSQL, les envois SMTP contrôlés et les parcours réels d’authentification ne sont pas validés.

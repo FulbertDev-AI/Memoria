@@ -8,6 +8,7 @@ import {
   authUserSchema,
   profileSchema,
 } from "@/features/auth/schemas";
+import { brand } from "@/config/brand";
 
 const configuredAppUrl = process.env.APP_URL;
 if (!configuredAppUrl && process.env.NODE_ENV === "production") {
@@ -42,7 +43,7 @@ try {
 }
 
 export const auth = betterAuth({
-  appName: "MEMORIA",
+  appName: brand.name,
   baseURL: appUrl,
   secret,
   trustedOrigins: [appUrl],
@@ -137,7 +138,7 @@ export const auth = betterAuth({
     },
   },
   advanced: {
-    cookiePrefix: "memoria",
+    cookiePrefix: "memooria",
     defaultCookieAttributes: {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",

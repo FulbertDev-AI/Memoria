@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import type { ReactNode } from "react";
+import { brand } from "@/config/brand";
 
 type AuthLayoutProps = {
   title: string;
@@ -18,12 +19,12 @@ export function AuthLayout({
   return (
     <main className="flex min-h-screen items-center justify-center px-4 py-12">
       <section className="w-full max-w-md rounded-2xl border border-[var(--border)] bg-white p-7 shadow-[0_16px_48px_rgba(32,33,36,0.07)] sm:p-9">
-        <Link href="/" aria-label="Retour à l’accueil MEMORIA" className="inline-block">
+        <Link href="/" aria-label={`Retour à l’accueil ${brand.name}`} className="inline-block">
           <Image
-            src="/brand/memoria-logo.webp"
-            alt="MEMORIA"
-            width={200}
-            height={48}
+            src={brand.logoOnWhite}
+            alt={brand.name}
+            width={1827}
+            height={560}
             priority
             className="h-10 w-[168px] object-contain object-left"
           />

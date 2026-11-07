@@ -1,4 +1,5 @@
 import nodemailer from "nodemailer";
+import { brand } from "@/config/brand";
 
 type AuthEmail = {
   email: string;
@@ -38,7 +39,7 @@ export async function sendAuthEmail({ email, name, url, purpose }: AuthEmail) {
   const user = process.env.SMTP_USER;
   const password = process.env.SMTP_PASSWORD;
   const fromEmail = process.env.SMTP_FROM_EMAIL;
-  const fromName = process.env.SMTP_FROM_NAME ?? "MEMORIA";
+  const fromName = process.env.SMTP_FROM_NAME ?? brand.name;
 
   if (!host || !Number.isInteger(port) || port <= 0 || !user || !password || !fromEmail) {
     throw new Error(
@@ -48,11 +49,11 @@ export async function sendAuthEmail({ email, name, url, purpose }: AuthEmail) {
 
   const isVerification = purpose === "verification";
   const subject = isVerification
-    ? "Vérifiez votre adresse e-mail — MEMORIA"
-    : "Réinitialisez votre mot de passe — MEMORIA";
+    ? `Vérifiez votre adresse e-mail — ${brand.name}`
+    : `Réinitialisez votre mot de passe — ${brand.name}`;
   const action = isVerification ? "Vérifier mon adresse e-mail" : "Choisir un nouveau mot de passe";
   const description = isVerification
-    ? "Confirmez votre adresse e-mail pour sécuriser votre compte MEMORIA."
+    ? `Confirmez votre adresse e-mail pour sécuriser votre compte ${brand.name}.`
     : "Une demande de réinitialisation de mot de passe a été effectuée pour votre compte.";
 
   const transporter = nodemailer.createTransport({
@@ -67,6 +68,6 @@ export async function sendAuthEmail({ email, name, url, purpose }: AuthEmail) {
     to: { name, address: email },
     subject,
     text: `${description}\n\n${action} : ${url}\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.`,
-    html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:32px auto;color:#202124"><h1 style="font-size:24px">MEMORIA</h1><p>Bonjour ${escapeHtml(name)},</p><p>${description}</p><p style="margin:28px 0"><a href="${escapeHtml(url)}" style="background:#f47721;color:#fff;padding:12px 18px;border-radius:6px;text-decoration:none;font-weight:600">${action}</a></p><p>Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.</p></div>`,
+    html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:32px auto;color:#202124"><h1 style="font-size:24px">${brand.name}</h1><p>Bonjour ${escapeHtml(name)},</p><p>${description}</p><p style="margin:28px 0"><a href="${escapeHtml(url)}" style="background:#f47721;color:#fff;padding:12px 18px;border-radius:6px;text-decoration:none;font-weight:600">${action}</a></p><p>Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.</p></div>`,
   });
 }

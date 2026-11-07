@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Inter, Manrope } from "next/font/google";
+import { brand } from "@/config/brand";
 import "./globals.css";
 
 const inter = Inter({
@@ -13,7 +14,7 @@ const manrope = Manrope({
 });
 
 export const metadata: Metadata = {
-  title: "MEMORIA | Événements & souvenirs",
+  title: `${brand.name} | Événements & souvenirs`,
   description:
     "Créez, personnalisez et partagez des invitations, RSVPs et galeries de souvenirs pour chaque moment important.",
 };

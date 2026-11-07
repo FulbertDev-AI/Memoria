@@ -1,15 +1,15 @@
 import { PrismaClient } from "@prisma/client";
 
 const globalForPrisma = globalThis as typeof globalThis & {
-  memoriaPrisma?: PrismaClient;
+  memooriaPrisma?: PrismaClient;
 };
 
 export const prisma =
-  globalForPrisma.memoriaPrisma ??
+  globalForPrisma.memooriaPrisma ??
   new PrismaClient({
     log: process.env.NODE_ENV === "development" ? ["error", "warn"] : ["error"],
   });
 
 if (process.env.NODE_ENV !== "production") {
-  globalForPrisma.memoriaPrisma = prisma;
+  globalForPrisma.memooriaPrisma = prisma;
 }

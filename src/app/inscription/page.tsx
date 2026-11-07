@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { AuthLayout } from "@/components/auth/auth-layout";
 import { SignUpForm } from "@/components/auth/auth-forms";
+import { brand } from "@/config/brand";
 
 export default function SignUpPage() {
   return (
     <AuthLayout
       title="Créer un compte"
-      description="Créez votre espace MEMORIA avec les informations essentielles. Vous pourrez compléter votre profil plus tard."
+      description={`Créez votre espace ${brand.name} avec les informations essentielles. Vous pourrez compléter votre profil plus tard.`}
       footer={
         <p>
           Vous avez déjà un compte ?{" "}
