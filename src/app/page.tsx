@@ -275,23 +275,35 @@ export default function Home() {
             {[
               {
                 title: "Mariage élégant",
-                accent: "bg-[var(--peach)]",
+                image: "/images/invitations/mariage.webp",
+                imageAlt: "Bouquet de mariée dans une lumière douce",
                 details: "Palette douce, programme, galerie et RSVP intégré.",
               },
               {
                 title: "Conférence professionnelle",
-                accent: "bg-[var(--muted)]",
+                image: "/images/invitations/conference.webp",
+                imageAlt: "Intervenant présentant un sujet devant un public",
                 details: "Informations pratiques, intervenants et accès à la salle.",
               },
               {
                 title: "Fête privée",
-                accent: "bg-[var(--sage)]",
+                image: "/images/invitations/fete-privee.webp",
+                imageAlt: "Amis réunis pour célébrer autour d’un verre",
                 details: "Ambiance moderne, compte à rebours et confirmation instantanée.",
               },
             ].map((card) => (
               <article key={card.title} className="overflow-hidden rounded-2xl border border-[var(--border)] bg-white">
-                <div className={`flex min-h-44 items-end ${card.accent} p-6`}>
-                  <h3 className="text-2xl font-bold text-[#202124]">{card.title}</h3>
+                <div className="relative min-h-56">
+                  <Image
+                    src={card.image}
+                    alt={card.imageAlt}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 640px) 50vw, 100vw"
+                    className="object-cover"
+                  />
+                  <div className="absolute inset-x-0 bottom-0 bg-[#202124]/75 px-6 py-4">
+                    <h3 className="text-2xl font-bold text-white">{card.title}</h3>
+                  </div>
                 </div>
                 <div className="p-6 text-base text-[#202124]/70">{card.details}</div>
               </article>

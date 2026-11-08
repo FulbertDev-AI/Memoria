@@ -18,6 +18,10 @@ L’application nécessite PostgreSQL et un serveur SMTP pour effectuer les parc
 - Nodemailer comme adaptateur SMTP.
 - Vitest pour les tests unitaires.
 
+## Images d’illustration
+
+Les trois visuels de la section « Exemples d’invitations » sont des photos d’illustration téléchargées depuis Unsplash, optimisées en WebP et servies localement depuis `public/images/invitations/`. Elles ne représentent ni des clients ni des événements Memooria réels. La licence Unsplash autorise leur usage gratuit, y compris commercial, sans attribution obligatoire : [unsplash.com/license](https://unsplash.com/license).
+
 ## Prérequis
 
 - Node.js 20.9 ou plus récent (Node.js 24 est utilisé pour le développement).
