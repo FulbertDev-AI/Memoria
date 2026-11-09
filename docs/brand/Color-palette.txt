@@ -1,6 +1,6 @@
 ===================================================================
                   CHARTE GRAPHIQUE & PALETTE DE COULEURS
-                             PROJET : KOLA
+                             PROJET : MEMOORIA
 ===================================================================
 
 1. COULEURS PRINCIPALES DE L'INTERFACE (EXTRAITES DE L'IMAGE)
