@@ -1,12 +1,38 @@
 # Memooria
 
-Memooria rassemble les invitations, les réponses des invités et les souvenirs d’un événement dans un même espace. Les fondations de la phase 3 sont validées localement : migrations appliquées, authentification, permissions et tests PostgreSQL isolés réussis. La livraison réelle par le fournisseur SMTP reste à vérifier avec une adresse de contrôle.
+Memooria rassemble les invitations, les réponses des invités et les souvenirs d’un événement dans un même espace. **État au 9 novembre 2026 :** les fondations de la phase 3 sont validées localement. Les deux migrations sont appliquées à `memoria.public`; authentification, organisations et contrôles d’accès passent les tests PostgreSQL isolés. Les parcours événementiels complets restent à construire. La livraison réelle par le fournisseur SMTP n’a pas été vérifiée.
 
 ## État actuel
 
-La landing page, l’inscription, la connexion, la vérification d’adresse e-mail, la réinitialisation de mot de passe, le profil et l’espace connecté sont implémentés. Les événements, les billets, les galeries et les autres parcours métier seront développés dans les phases suivantes.
+La landing page, l’inscription, la connexion, la vérification d’adresse e-mail, la réinitialisation de mot de passe, le profil et l’espace connecté sont implémentés. La gestion des organisations et des membres, les invitations d’organisation ainsi que les fondations du catalogue commercial et des entitlements sont également présentes. Le modèle d’événement est encore minimal : la création complète d’événements, les invitations publiques, RSVP, billets, galeries, uploads et distribution des souvenirs ne sont pas encore implémentés.
 
-L’application nécessite PostgreSQL et un serveur SMTP pour effectuer les parcours réels d’inscription et de récupération de compte. Les variables absentes ne sont pas simulées.
+L’application nécessite PostgreSQL et un serveur SMTP configuré pour effectuer les parcours réels d’inscription et de récupération de compte. La configuration SMTP locale existe, mais la connexion au fournisseur et la livraison à un destinataire réel n’ont pas été confirmées. Les variables absentes ne sont pas simulées.
+
+## Point de reprise avant la pause
+
+Le dépôt est synchronisé sur la branche `main`. La phase 3 est validée pour le parcours local; consultez [PROJECT_STATUS.md](./PROJECT_STATUS.md) pour le suivi des phases et les résultats détaillés.
+
+### État vérifié
+
+- Migrations initiale et organisationnelle/commerciale appliquées à la base locale `memoria`, schéma `public`; `prisma migrate status` indique que la base est à jour.
+- Catalogue de développement seedé : 10 offres, 13 définitions d’entitlements et accès Découverte aux galeries personnelles ainsi qu’aux photographes invités. Les prix et quotas ne sont pas inventés.
+- Les tests unitaires (13), les tests d’intégration PostgreSQL/SMTP local (6), ESLint, TypeScript, la validation Prisma et le build de production ont réussi lors du dernier contrôle.
+- Les tests d’intégration utilisent un schéma temporaire dans la base locale, distinct de `public`, puis suppriment ce schéma après exécution normale. Lancez `npm run test:integration`; le rôle PostgreSQL doit pouvoir créer un schéma.
+- Aucun paiement n’est simulé. Les nouvelles demandes d’achat et d’abonnement restent en attente jusqu’à l’intégration d’un mécanisme réel.
+
+### À reprendre
+
+1. Reprendre par `git pull` sur `main`, puis consulter [PROJECT_STATUS.md](./PROJECT_STATUS.md).
+2. Installer les dépendances avec `npm ci`; configurer localement les variables requises à partir de `.env.example`, sans commiter de fichier `.env`.
+3. Démarrer PostgreSQL et vérifier `npm run db:deploy`, `npm run test:integration`, `npm test`, `npm run lint`, `npm run typecheck` et `npm run build`.
+4. Si Prisma signale un verrou de fichier sous Windows pendant `db:generate`, arrêter le serveur Next.js local puis relancer la génération.
+5. Reprendre la phase 4 selon le plan, puis poursuivre les phases suivantes dans l’ordre.
+
+### Points non confirmés ou à traiter séparément
+
+- Effectuer un test SMTP réel avec une adresse de contrôle approuvée avant de considérer les e-mails comme distribués.
+- L’audit npm exécuté le 9 novembre 2026 signalait 4 avis HIGH et 8 MODERATE. La résolution des avis Prisma implique d’évaluer une migration majeure; ne pas lancer `npm audit fix` à l’aveugle.
+- La limitation de débit Better Auth repose actuellement sur un stockage en mémoire; un stockage partagé est nécessaire avant un déploiement multi-instance.
 
 ## Stack technique
 
@@ -94,7 +120,7 @@ npm run db:deploy
 
 Le schéma inclut les modèles Better Auth (`User`, `Session`, `Account`, `Verification`), les organisations et leurs membres. Les relations ont des contraintes d’intégrité et les tables sensibles possèdent des index.
 
-Une migration additive prépare également les invitations d’organisation, le modèle minimal d’événement et le catalogue commercial. Elle a été appliquée à la base locale `memoria`. N’appliquez pas une migration de test à la base de production.
+Une migration additive prépare également les invitations d’organisation, le modèle minimal d’événement et le catalogue commercial. Les migrations versionnées ont été appliquées à la base locale `memoria`, schéma `public`. N’appliquez pas une migration de test à la base de production.
 
 ## Seed du rôle administrateur
 
@@ -172,7 +198,7 @@ Le script ne crée pas de base PostgreSQL. Les tests d’authentification rempla
 - Les demandes de réinitialisation répondent avec un message neutre pour ne pas révéler si une adresse est inscrite.
 - Le seed n’introduit aucun mot de passe de démonstration ni secret dans le code.
 - L’inscription dépend du SMTP configuré ; elle n’est jamais présentée comme un envoi effectif sans confirmation du fournisseur.
-- La migration initiale a été appliquée à la base locale `memoria`; la nouvelle migration additive n’a pas encore été appliquée.
+- Les migrations initiale et additive sont appliquées à la base locale `memoria`, schéma `public`; le statut Prisma a été vérifié à jour.
 - Des paramètres SMTP sont présents dans l’environnement local, mais aucun e-mail réel n’a été envoyé ni confirmé. Vérifiez le fournisseur avec un test contrôlé avant tout déploiement.
 - L’audit npm signale 4 vulnérabilités HIGH et 8 MODERATE. La correction des avis Prisma HIGH implique une mise à niveau majeure vers Prisma 7; la rétrogradation proposée par npm pour `eslint-config-next` ne convient pas à Next 16. Toute évolution des dépendances doit être évaluée et testée séparément.
 
