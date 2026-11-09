@@ -1,6 +1,6 @@
 # Memooria
 
-Memooria rassemble les invitations, les réponses des invités et les souvenirs d’un événement dans un même espace. Le dépôt est actuellement au socle de la phase 3 : base de données, comptes, sessions et permissions d’organisation.
+Memooria rassemble les invitations, les réponses des invités et les souvenirs d’un événement dans un même espace. Les fondations de la phase 3 sont validées localement : migrations appliquées, authentification, permissions et tests PostgreSQL isolés réussis. La livraison réelle par le fournisseur SMTP reste à vérifier avec une adresse de contrôle.
 
 ## État actuel
 
@@ -75,6 +75,7 @@ Collez la valeur générée dans `AUTH_SECRET`. Ne la commitez jamais. Les fichi
 | `SMTP_FROM_EMAIL` | Oui pour les e-mails | Adresse d’expédition vérifiée |
 | `SMTP_FROM_NAME` | Non | Nom affiché à l’expéditeur, par défaut `Memooria` |
 | `SEED_ADMIN_EMAIL` | Pour le seed admin | Adresse d’un compte déjà inscrit et vérifié |
+| `TEST_DATABASE_URL` | Pour les tests PostgreSQL | Base locale dédiée terminant par `_test(s)`, ou schéma dédié terminant par `_test(s)` dans la base de développement |
 
 ## Base de données et Prisma
 
@@ -93,6 +94,8 @@ npm run db:deploy
 
 Le schéma inclut les modèles Better Auth (`User`, `Session`, `Account`, `Verification`), les organisations et leurs membres. Les relations ont des contraintes d’intégrité et les tables sensibles possèdent des index.
 
+Une migration additive prépare également les invitations d’organisation, le modèle minimal d’événement et le catalogue commercial. Elle a été appliquée à la base locale `memoria`. N’appliquez pas une migration de test à la base de production.
+
 ## Seed du rôle administrateur
 
 Le seed ne crée pas de compte avec un mot de passe connu ou non vérifié. Inscrivez d’abord le compte via `/inscription`, confirmez l’adresse grâce au lien reçu, puis définissez `SEED_ADMIN_EMAIL` dans `.env` et lancez :
@@ -102,6 +105,12 @@ npm run db:seed
 ```
 
 Le script promeut uniquement l’utilisateur existant et vérifié vers `SUPER_ADMIN`. Il échoue explicitement si le compte n’existe pas ou si son adresse n’est pas vérifiée.
+
+## Offres commerciales et entitlements
+
+Le seed initialise les offres Découverte, Essentiel, Premium, Prestige, Solo, Agence et Business. Les achats événementiels sont associés à un événement; les abonnements professionnels à une organisation. Les prix et quotas ne sont pas préremplis, car ils doivent être décidés puis configurés par l’administration.
+
+Les contrôles commerciaux sont centralisés dans les services d’entitlements et s’exécutent côté serveur. Les demandes d’achat et d’abonnement restent `PENDING` tant qu’un mécanisme réel d’activation n’est pas ajouté. Aucun paiement n’est simulé. L’offre Découverte prévoit gratuitement les galeries personnelles et l’accès commercial des photographes invités; les autorisations de l’événement et les règles de confidentialité continuent de contrôler les accès réels.
 
 ## Démarrage
 
@@ -142,10 +151,17 @@ Seuls les membres actifs de l’organisation concernée peuvent exercer ces perm
 npm run lint
 npm run typecheck
 npm test
+npm run test:integration
 npm run build
 ```
 
-Les tests actuels couvrent les validations d’authentification et les règles de permissions. Les tests de parcours avec PostgreSQL et SMTP nécessitent des services configurés ; aucune connexion externe n’est considérée comme validée dans un environnement qui ne les fournit pas.
+Les tests unitaires couvrent les schémas et permissions. `test:integration` exige `DATABASE_URL` et `TEST_DATABASE_URL` vers PostgreSQL en local. La cible peut être une base distincte terminant par `_test(s)`, ou un schéma distinct terminant par `_test(s)` dans la base configurée par `DATABASE_URL`. Pour réutiliser la base de développement sans toucher à son schéma `public`, donnez à `TEST_DATABASE_URL` la même base et un schéma d’intégration. Le script crée ce schéma, y applique les migrations et le seed, exécute les tests, puis supprime uniquement ce schéma isolé. Le schéma peut être réutilisé après une exécution normale; si le processus est interrompu avant le nettoyage, choisissez un autre suffixe. Le rôle doit pouvoir créer un schéma.
+
+```text
+postgresql://<utilisateur>:<mot-de-passe>@localhost:5432/memoria?schema=memooria_integration_test
+```
+
+Le script ne crée pas de base PostgreSQL. Les tests d’authentification remplacent la configuration SMTP par un capteur local éphémère; aucun message n’est envoyé à un destinataire réel. La présence de paramètres SMTP dans l’environnement ne vaut pas confirmation de livraison réelle.
 
 ## Sécurité et limites actuelles
 
@@ -156,9 +172,9 @@ Les tests actuels couvrent les validations d’authentification et les règles d
 - Les demandes de réinitialisation répondent avec un message neutre pour ne pas révéler si une adresse est inscrite.
 - Le seed n’introduit aucun mot de passe de démonstration ni secret dans le code.
 - L’inscription dépend du SMTP configuré ; elle n’est jamais présentée comme un envoi effectif sans confirmation du fournisseur.
-- La migration PostgreSQL n’a pas encore été confirmée après la mise à jour locale de `DATABASE_URL` ; son résultat sera ajouté au suivi dès la prochaine tentative.
+- La migration initiale a été appliquée à la base locale `memoria`; la nouvelle migration additive n’a pas encore été appliquée.
 - Des paramètres SMTP sont présents dans l’environnement local, mais aucun e-mail réel n’a été envoyé ni confirmé. Vérifiez le fournisseur avec un test contrôlé avant tout déploiement.
-- L’audit npm actuel signale des avis HIGH dans la chaîne de dépendances Prisma 6. La correction proposée implique une mise à niveau majeure vers Prisma 7 ; cette migration reste à évaluer et à valider avant déploiement.
+- L’audit npm signale 4 vulnérabilités HIGH et 8 MODERATE. La correction des avis Prisma HIGH implique une mise à niveau majeure vers Prisma 7; la rétrogradation proposée par npm pour `eslint-config-next` ne convient pas à Next 16. Toute évolution des dépendances doit être évaluée et testée séparément.
 
 ## Suivi du projet
 

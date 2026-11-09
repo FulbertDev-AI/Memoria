@@ -5,7 +5,8 @@ type AuthEmail = {
   email: string;
   name: string;
   url: string;
-  purpose: "verification" | "password-reset";
+  purpose: "verification" | "password-reset" | "organization-invitation";
+  organizationName?: string;
 };
 
 export function isAuthEmailConfigured(): boolean {
@@ -33,7 +34,13 @@ function escapeHtml(value: string): string {
   });
 }
 
-export async function sendAuthEmail({ email, name, url, purpose }: AuthEmail) {
+export async function sendAuthEmail({
+  email,
+  name,
+  url,
+  purpose,
+  organizationName,
+}: AuthEmail) {
   const host = process.env.SMTP_HOST;
   const port = Number(process.env.SMTP_PORT);
   const user = process.env.SMTP_USER;
@@ -47,14 +54,24 @@ export async function sendAuthEmail({ email, name, url, purpose }: AuthEmail) {
     );
   }
 
-  const isVerification = purpose === "verification";
-  const subject = isVerification
-    ? `Vérifiez votre adresse e-mail — ${brand.name}`
-    : `Réinitialisez votre mot de passe — ${brand.name}`;
-  const action = isVerification ? "Vérifier mon adresse e-mail" : "Choisir un nouveau mot de passe";
-  const description = isVerification
-    ? `Confirmez votre adresse e-mail pour sécuriser votre compte ${brand.name}.`
-    : "Une demande de réinitialisation de mot de passe a été effectuée pour votre compte.";
+  const subject =
+    purpose === "verification"
+      ? `Vérifiez votre adresse e-mail — ${brand.name}`
+      : purpose === "password-reset"
+        ? `Réinitialisez votre mot de passe — ${brand.name}`
+        : `Invitation à rejoindre ${organizationName ?? "une organisation"} — ${brand.name}`;
+  const action =
+    purpose === "verification"
+      ? "Vérifier mon adresse e-mail"
+      : purpose === "password-reset"
+        ? "Choisir un nouveau mot de passe"
+        : "Consulter l’invitation";
+  const description =
+    purpose === "verification"
+      ? `Confirmez votre adresse e-mail pour sécuriser votre compte ${brand.name}.`
+      : purpose === "password-reset"
+        ? "Une demande de réinitialisation de mot de passe a été effectuée pour votre compte."
+        : `Vous avez été invité à rejoindre ${organizationName ?? "une organisation"} sur ${brand.name}.`;
 
   const transporter = nodemailer.createTransport({
     host,
@@ -65,9 +82,27 @@ export async function sendAuthEmail({ email, name, url, purpose }: AuthEmail) {
 
   await transporter.sendMail({
     from: { name: fromName, address: fromEmail },
-    to: { name, address: email },
+    to: { name: name || email, address: email },
     subject,
     text: `${description}\n\n${action} : ${url}\n\nSi vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.`,
     html: `<div style="font-family:Arial,sans-serif;max-width:560px;margin:32px auto;color:#202124"><h1 style="font-size:24px">${brand.name}</h1><p>Bonjour ${escapeHtml(name)},</p><p>${description}</p><p style="margin:28px 0"><a href="${escapeHtml(url)}" style="background:#f47721;color:#fff;padding:12px 18px;border-radius:6px;text-decoration:none;font-weight:600">${action}</a></p><p>Si vous n’êtes pas à l’origine de cette demande, ignorez cet e-mail.</p></div>`,
+  });
+}
+
+export async function sendOrganizationInvitationEmail({
+  email,
+  organizationName,
+  url,
+}: {
+  email: string;
+  organizationName: string;
+  url: string;
+}) {
+  return sendAuthEmail({
+    email,
+    name: email,
+    url,
+    purpose: "organization-invitation",
+    organizationName,
   });
 }

@@ -6,15 +6,15 @@
 |---|---|
 | 1 — Audit et planification | Terminée |
 | 2 — Fondations et design system | Terminée |
-| 3 — Base de données et authentification | Migration appliquée ; tests d’intégration et e-mails restent à valider |
+| 3 — Base de données et authentification | Validée localement; livraison SMTP réelle non vérifiée |
 | 4 — Site vitrine | Réalisée partiellement en phase 2 ; validation à reprendre dans l’ordre prévu |
-| 5 — Organisations et événements | Non commencée |
+| 5 — Organisations et événements | Fondations organisationnelles et modèle d’événement ajoutés ; parcours événementiels à développer |
 | 6 — Invitations et RSVP | Non commencée |
 | 7 — Billets, QR Codes et check-in | Non commencée |
 | 8 — Photographes et stockage | Non commencée |
 | 9 — Galeries et associations | Non commencée |
 | 10 — Notifications et distribution | Non commencée |
-| 11 — Sponsors et abonnements | Non commencée |
+| 11 — Sponsors et abonnements | Fondations commerciales ajoutées ; administration complète et contrôles métier à poursuivre |
 | 12 — Administration et analytics | Non commencée |
 | 13 — Qualité globale et documentation | Non commencée |
 
@@ -121,12 +121,41 @@
 - Smoke tests HTTP : formulaires d’auth accessibles (200), API de session anonyme (200/null), dashboard anonyme redirigé vers `/connexion` (307).
 
 ### Blocages externes
-- La migration `20261107150000_initial_auth_organization` a été appliquée avec succès après la mise à jour locale de `DATABASE_URL`.
-- Les paramètres SMTP sont présents dans l’environnement local, mais aucun e-mail n’a été envoyé et l’accès au fournisseur n’a pas été vérifié.
-- Les tests d’intégration de persistance, les parcours d’inscription/connexion réels et l’isolation avec PostgreSQL restent à exécuter après configuration locale.
-- `npm audit --omit=dev` signale 4 vulnérabilités HIGH dans la chaîne Prisma (`prisma`, `@prisma/config`, `deepmerge-ts`, `effect`). La correction automatique proposée impose une mise à niveau majeure vers Prisma 7 ; aucune mise à niveau risquée n’a été appliquée sans migration et validation dédiées.
+- Les migrations `20261107150000_initial_auth_organization` et `20261107160000_organization_commercial_foundations` sont appliquées à la base locale `memoria`, schéma `public`; `prisma migrate status` confirme que la base est à jour.
+- Le rôle PostgreSQL ne peut pas créer de base, mais peut créer des schémas. Les tests ont utilisé un schéma éphémère dans `memoria`, puis l’ont supprimé; `public` n’a pas été utilisé pour les essais.
+- Les tests d’intégration redirigent explicitement le SMTP vers un capteur local; aucun courriel externe n’est envoyé. Cela valide les parcours et la génération des messages, pas la remise par le fournisseur SMTP réel. Les paramètres sont configurés, mais la connexion et la livraison au fournisseur n’ont pas été vérifiées.
+- `npm audit` signale 12 avis (4 HIGH, 8 MODERATE), dont 4 HIGH dans la chaîne Prisma (`prisma`, `@prisma/config`, `deepmerge-ts`, `effect`). La correction proposée pour les HIGH impose une mise à niveau majeure vers Prisma 7. La correction ESLint suggérée rétrograderait `eslint-config-next` vers Next 15.5.29, incompatible avec Next 16. Aucune mise à niveau automatique n’a été appliquée.
 
 ### État de validation
-- Le code de la phase 3 est implémenté.
-- La phase 3 reste ouverte tant que migrations, e-mails, tests d’intégration et parcours d’authentification n’ont pas été vérifiés avec des services configurés.
-- La phase 3 reste ouverte tant que les tests d’intégration PostgreSQL, les envois SMTP contrôlés et les parcours réels d’authentification ne sont pas validés.
+- Phase 3 validée pour le parcours local : migrations, schéma, seed, Better Auth, e-mails via le capteur SMTP, organisations, autorisations, isolation, quotas, TypeScript, lint, tests unitaires et build sont vérifiés.
+- La livraison SMTP réelle demeure une vérification d’intégration externe en attente d’une adresse de contrôle et d’un test autorisé; elle n’est pas présentée comme confirmée.
+
+## Reprise — Organisations et fondations commerciales
+
+### Changements implémentés
+- Ajout des invitations d’organisation à jeton opaque haché, de la gestion des membres et rôles, et de routes API avec autorisations serveur.
+- Ajout du modèle d’événement minimal nécessaire pour rattacher un achat ponctuel à un événement.
+- Ajout d’offres versionnées, d’entitlements, d’achats événementiels, d’abonnements organisationnels, d’usage atomique des quotas et de journaux d’audit.
+- Ajout des offres Découverte, Essentiel, Premium, Prestige, Solo, Agence et Business au seed. Les tarifs et quotas restent non configurés tant que l’administration ne les renseigne pas.
+- L’offre Découverte attribue les capacités de galerie personnelle et d’accès photographe. Ces droits commerciaux ne remplacent pas les permissions d’accès aux médias ni l’invitation obligatoire du photographe.
+- Les achats et abonnements commencent en état `PENDING`; aucun paiement réel ou fictif n’est déclaré.
+- Ajout d’une migration additive générée et inspectée; elle a été appliquée à `memoria.public` sans réinitialisation de la base.
+
+### Vérifications exécutées
+- `prisma validate` → OK.
+- `prisma migrate deploy` sur la base `memoria.public` → migration additive appliquée; `prisma migrate status` → à jour.
+- Seed commercial exécuté sans promotion du compte administrateur; contrôle SQL en lecture seule → 10 offres, 13 définitions et 2 entitlements sur Découverte.
+- `npm run db:generate` → OK avec Prisma Client 6.19.1.
+- `npm run typecheck` → OK.
+- `npm run lint` → OK.
+- `npm test -- --reporter=dot` → 13 tests réussis; 6 tests d’intégration ignorés faute d’activation PostgreSQL.
+- `npm run test:integration` → 6 tests PostgreSQL/SMTP local réussis dans un schéma dédié, supprimé ensuite.
+- Les premiers essais d’intégration ont révélé des attentes de test qui ne correspondaient pas à Better Auth (réponse anti-enumération pour doublon, jetons de vérification signés, URL de reset et limites par IP); les assertions et requêtes de test ont été corrigées, puis les six tests ont réussi.
+- `npm run build` → OK.
+- Le SQL de migration a été inspecté avant application et ne contenait aucune opération `DROP`.
+- Contrôle final en lecture seule → aucun schéma de test résiduel; le catalogue public est disponible pour l’interface.
+
+### Prochaines tâches exactes
+1. Avec une adresse de contrôle approuvée, vérifier le SMTP réel et documenter le résultat; sans cette adresse, garder cette intégration non confirmée.
+2. Continuer la phase 4 selon le plan, sans déclarer les parcours métier ultérieurs implémentés.
+3. Planifier séparément l’évaluation de la migration Prisma 7 et de ses impacts avant tout changement majeur de dépendances.

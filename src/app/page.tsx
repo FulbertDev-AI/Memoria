@@ -8,6 +8,9 @@ import {
   Users,
 } from "lucide-react";
 import { brand } from "@/config/brand";
+import { prisma } from "@/lib/db/prisma";
+
+export const dynamic = "force-dynamic";
 
 const features = [
   {
@@ -43,41 +46,37 @@ const steps = [
   "Partagez la galerie finale à vos invités.",
 ];
 
-const plans = [
-  {
-    name: "Free",
-    description: "Pour démarrer sereinement un premier événement.",
-    features: [
-      "Événements illimités en brouillon",
-      "Templates de base",
-      "Gestion des invités",
-      "Galerie collective",
-      "Notifications e-mail",
-    ],
-  },
-  {
-    name: "Premium",
-    description: "Le meilleur équilibre pour les événements réguliers.",
-    features: [
-      "Tout du Free",
-      "Templates premium",
-      "Statistiques avancées",
-      "Plus de collaborateurs",
-      "Personnalisation avancée",
-    ],
-  },
-  {
-    name: "Business",
-    description: "Pour les organisations qui veulent contrôler chaque détail.",
-    features: [
-      "Tout du Premium",
-      "Check-in avancé",
-      "Gestion multi-événements",
-      "Rôles et permissions",
-      "Support prioritaire",
-    ],
-  },
-];
+function formatOfferPrice(
+  priceMinor: bigint | null,
+  currency: string | null,
+  interval: string,
+) {
+  const intervalLabel =
+    interval === "MONTHLY"
+      ? "par mois"
+      : interval === "YEARLY"
+        ? "par an"
+        : interval === "ONE_TIME"
+          ? "par événement"
+          : "";
+
+  if (priceMinor === null || currency === null) {
+    return intervalLabel ? `Prix à définir · ${intervalLabel}` : "Gratuit";
+  }
+
+  const minorUnits = Number(priceMinor);
+  if (!Number.isSafeInteger(minorUnits)) {
+    return `Prix configuré · ${intervalLabel}`;
+  }
+  const formatter = new Intl.NumberFormat("fr-FR", {
+    style: "currency",
+    currency,
+  });
+  const amount = formatter.format(
+    minorUnits / 10 ** (formatter.resolvedOptions().maximumFractionDigits ?? 2),
+  );
+  return intervalLabel ? `${amount} · ${intervalLabel}` : amount;
+}
 
 const faqs = [
   {
@@ -102,7 +101,27 @@ const faqs = [
   },
 ];
 
-export default function Home() {
+export default async function Home() {
+  const offers = await prisma.commercialOffer.findMany({
+    where: { active: true },
+    orderBy: [{ category: "asc" }, { name: "asc" }, { billingInterval: "asc" }],
+    select: {
+      code: true,
+      version: true,
+      name: true,
+      description: true,
+      category: true,
+      billingInterval: true,
+      priceMinor: true,
+      currency: true,
+    },
+  });
+  const discoveryOffers = offers.filter((offer) => offer.category === "DISCOVERY");
+  const eventOffers = offers.filter((offer) => offer.category === "EVENT");
+  const professionalOffers = offers.filter(
+    (offer) => offer.category === "PROFESSIONAL",
+  );
+
   return (
     <div className="min-h-screen bg-[var(--background)] text-[var(--foreground)]">
       <header className="sticky top-0 z-30 border-b border-[var(--border)] bg-[rgba(245,246,245,0.9)] backdrop-blur-sm">
@@ -355,31 +374,72 @@ export default function Home() {
         <section id="tarifs" className="mx-auto max-w-7xl px-4 py-20 sm:px-6 lg:px-8">
           <div className="mx-auto max-w-2xl text-center">
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-[var(--primary)]">Tarifs</p>
-            <h2 className="mt-4 text-4xl font-black tracking-[-0.05em] text-[#202124]">Des formules adaptées à vos besoins.</h2>
+            <h2 className="mt-4 text-4xl font-black tracking-[-0.05em] text-[#202124]">Une formule adaptée à votre activité.</h2>
             <p className="mt-4 text-base leading-7 text-[#202124]/65">
-              Les tarifs seront communiqués lors de l’ouverture des souscriptions.
+              Les offres et leurs tarifs sont issus du catalogue Memooria. Aucun prix n’est inventé ou simulé.
             </p>
           </div>
 
-          <div className="mt-12 grid gap-6 lg:grid-cols-3">
-            {plans.map((plan) => (
-              <article
-                key={plan.name}
-                className="rounded-2xl border border-[var(--border)] bg-white p-7"
-              >
-                <h3 className="text-xl font-bold text-[#202124]">{plan.name}</h3>
-                <p className="mt-3 min-h-12 text-sm leading-6 text-[#202124]/65">{plan.description}</p>
+          <div className="mt-12 space-y-12">
+            <section aria-labelledby="discovery-offers-heading">
+              <h3 id="discovery-offers-heading" className="text-2xl font-bold text-[#202124]">
+                Découvrir Memooria
+              </h3>
+              <div className="mt-5 grid gap-6 md:grid-cols-2">
+                {discoveryOffers.map((offer) => (
+                  <article key={`${offer.code}-${offer.version}`} className="rounded-2xl border border-[var(--border)] bg-white p-7">
+                    <h4 className="text-xl font-bold text-[#202124]">{offer.name}</h4>
+                    <p className="mt-3 text-sm leading-6 text-[#202124]/65">{offer.description}</p>
+                    <p className="mt-5 font-semibold text-[var(--primary-strong)]">
+                      {formatOfferPrice(offer.priceMinor, offer.currency, offer.billingInterval)}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </section>
 
-                <ul className="mt-6 space-y-4 text-[#202124]/75">
-                  {plan.features.map((feature) => (
-                    <li key={feature} className="flex items-start gap-3">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-[var(--success)]" aria-hidden="true" />
-                      <span>{feature}</span>
-                    </li>
-                  ))}
-                </ul>
-              </article>
-            ))}
+            <section aria-labelledby="event-offers-heading">
+              <h3 id="event-offers-heading" className="text-2xl font-bold text-[#202124]">
+                Forfaits ponctuels par événement
+              </h3>
+              <div className="mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {eventOffers.map((offer) => (
+                  <article key={`${offer.code}-${offer.version}`} className="rounded-2xl border border-[var(--border)] bg-white p-7">
+                    <h4 className="text-xl font-bold text-[#202124]">{offer.name}</h4>
+                    <p className="mt-3 text-sm leading-6 text-[#202124]/65">{offer.description}</p>
+                    <p className="mt-5 font-semibold text-[var(--primary-strong)]">
+                      {formatOfferPrice(offer.priceMinor, offer.currency, offer.billingInterval)}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            <section aria-labelledby="professional-offers-heading">
+              <h3 id="professional-offers-heading" className="text-2xl font-bold text-[#202124]">
+                Abonnements professionnels
+              </h3>
+              <div className="mt-5 grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {professionalOffers.map((offer) => (
+                  <article key={`${offer.code}-${offer.version}-${offer.billingInterval}`} className="rounded-2xl border border-[var(--border)] bg-white p-7">
+                    <h4 className="text-xl font-bold text-[#202124]">{offer.name}</h4>
+                    <p className="mt-3 text-sm leading-6 text-[#202124]/65">{offer.description}</p>
+                    <p className="mt-5 font-semibold text-[var(--primary-strong)]">
+                      {formatOfferPrice(offer.priceMinor, offer.currency, offer.billingInterval)}
+                    </p>
+                  </article>
+                ))}
+              </div>
+            </section>
+
+            {offers.length === 0 && (
+              <p className="rounded-xl border border-[var(--border)] bg-white p-5 text-sm text-[#202124]/65">
+                Le catalogue des offres n’est pas encore initialisé.
+              </p>
+            )}
+            <p className="text-sm leading-6 text-[#202124]/65">
+              Les invités et les photographes ou vidéastes invités accèdent gratuitement aux contenus et outils autorisés pour leur événement. Ces accès ne nécessitent pas d’abonnement professionnel.
+            </p>
           </div>
         </section>
 

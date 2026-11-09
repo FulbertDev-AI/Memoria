@@ -21,6 +21,71 @@ enum OrganizationMemberStatus {
   SUSPENDED
 }
 
+enum OrganizationInvitationStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  REVOKED
+}
+
+enum OfferCategory {
+  DISCOVERY
+  EVENT
+  PROFESSIONAL
+}
+
+enum OfferContext {
+  PLATFORM
+  EVENT
+  ORGANIZATION
+}
+
+enum BillingInterval {
+  NONE
+  ONE_TIME
+  MONTHLY
+  YEARLY
+}
+
+enum EntitlementValueType {
+  FEATURE
+  QUOTA
+  VALUE
+}
+
+enum EventPlanAccessStatus {
+  PENDING
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  REVOKED
+}
+
+enum EventPlanAccessSource {
+  ADMIN_GRANT
+  PROVIDER_CONFIRMED
+}
+
+enum RetentionAnchor {
+  EVENT_END
+  GALLERY_PUBLISHED
+}
+
+enum SubscriptionStatus {
+  TRIAL
+  ACTIVE
+  PENDING
+  PAST_DUE
+  CANCELLED
+  EXPIRED
+}
+
+enum EntitlementScopeType {
+  USER
+  EVENT
+  ORGANIZATION
+}
+
 model User {
   id            String   @id
   name          String
@@ -36,6 +101,9 @@ model User {
   accounts           Account[]
   memberships        OrganizationMember[]
   ownedOrganizations Organization[]       @relation("OrganizationCreator")
+  sentInvitations    OrganizationInvitation[] @relation("OrganizationInvitationSender")
+  createdEvents      Event[]                   @relation("EventCreator")
+  commercialOfferChanges CommercialOfferAuditLog[]
 
   @@index([globalRole])
 }
@@ -94,6 +162,9 @@ model Organization {
 
   createdBy User                 @relation("OrganizationCreator", fields: [createdById], references: [id], onDelete: Restrict)
   members   OrganizationMember[]
+  invitations OrganizationInvitation[]
+  events    Event[]
+  subscriptions OrganizationSubscription[]
 
   @@index([createdById])
 }
@@ -112,4 +183,177 @@ model OrganizationMember {
 
   @@unique([organizationId, userId])
   @@index([userId, status])
+  @@index([organizationId, status, role])
+}
+
+model OrganizationInvitation {
+  id             String                       @id @default(cuid())
+  organizationId String
+  email          String
+  role           OrganizationRole
+  status         OrganizationInvitationStatus @default(PENDING)
+  tokenHash      String                       @unique
+  expiresAt      DateTime
+  invitedById    String
+  acceptedAt     DateTime?
+  declinedAt     DateTime?
+  createdAt      DateTime                     @default(now())
+  updatedAt      DateTime                     @updatedAt
+
+  organization Organization @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  invitedBy    User         @relation("OrganizationInvitationSender", fields: [invitedById], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, email, status])
+  @@index([expiresAt, status])
+}
+
+model Event {
+  id             String   @id @default(cuid())
+  title          String
+  slug           String   @unique
+  createdById    String
+  organizationId String?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  createdBy User         @relation("EventCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  organization Organization? @relation(fields: [organizationId], references: [id], onDelete: Restrict)
+  purchases EventPlanPurchase[]
+
+  @@index([createdById])
+  @@index([organizationId])
+}
+
+model CommercialOffer {
+  id             String         @id @default(cuid())
+  code           String
+  version        Int            @default(1)
+  name           String
+  description    String
+  category       OfferCategory
+  context        OfferContext
+  active         Boolean        @default(true)
+  priceMinor     BigInt?
+  currency       String?        @db.Char(3)
+  billingInterval BillingInterval @default(NONE)
+  retentionDays  Int?
+  retentionAnchor RetentionAnchor?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+
+  entitlements OfferEntitlement[]
+  eventPurchases EventPlanPurchase[]
+  subscriptions OrganizationSubscription[]
+
+  auditLogs CommercialOfferAuditLog[]
+
+  @@unique([code, version, billingInterval])
+  @@index([context, active])
+  @@index([category, active])
+}
+
+model EntitlementDefinition {
+  key         String               @id
+  name        String
+  description String
+  valueType   EntitlementValueType
+  unit        String?
+  createdAt   DateTime             @default(now())
+  updatedAt   DateTime             @updatedAt
+
+  offerEntitlements OfferEntitlement[]
+  usage             EntitlementUsage[]
+}
+
+model OfferEntitlement {
+  id             String  @id @default(cuid())
+  offerId        String
+  entitlementKey String
+  enabled        Boolean?
+  limitValue     BigInt?
+  usageScope     EntitlementScopeType?
+  value          Json?
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+
+  offer       CommercialOffer       @relation(fields: [offerId], references: [id], onDelete: Cascade)
+  definition EntitlementDefinition @relation(fields: [entitlementKey], references: [key], onDelete: Restrict)
+
+  @@unique([offerId, entitlementKey])
+  @@index([entitlementKey])
+}
+
+model EventPlanPurchase {
+  id                String                 @id @default(cuid())
+  eventId           String
+  offerId           String
+  offerVersion      Int
+  status            EventPlanAccessStatus @default(PENDING)
+  source            EventPlanAccessSource?
+  startsAt          DateTime?
+  endsAt            DateTime?
+  activatedAt       DateTime?
+  rulesSnapshot     Json
+  retentionDays     Int?
+  retentionAnchor   RetentionAnchor?
+  createdAt         DateTime               @default(now())
+  updatedAt         DateTime               @updatedAt
+
+  event Event           @relation(fields: [eventId], references: [id], onDelete: Cascade)
+  offer CommercialOffer @relation(fields: [offerId], references: [id], onDelete: Restrict)
+
+  @@index([eventId, status, startsAt, endsAt])
+  @@index([offerId, offerVersion])
+}
+
+model CommercialOfferAuditLog {
+  id            String   @id @default(cuid())
+  offerId       String
+  actorUserId   String
+  action        String
+  changes       Json
+  createdAt     DateTime @default(now())
+
+  offer CommercialOffer @relation(fields: [offerId], references: [id], onDelete: Restrict)
+  actor User            @relation(fields: [actorUserId], references: [id], onDelete: Restrict)
+
+  @@index([offerId, createdAt])
+  @@index([actorUserId, createdAt])
+}
+
+model OrganizationSubscription {
+  id                  String             @id @default(cuid())
+  organizationId      String
+  offerId             String
+  offerVersion        Int
+  billingInterval     BillingInterval
+  status              SubscriptionStatus @default(PENDING)
+  startsAt            DateTime?
+  endsAt              DateTime?
+  renewsAt            DateTime?
+  cancelAtPeriodEnd   Boolean            @default(false)
+  rulesSnapshot       Json
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+
+  organization Organization    @relation(fields: [organizationId], references: [id], onDelete: Cascade)
+  offer        CommercialOffer @relation(fields: [offerId], references: [id], onDelete: Restrict)
+
+  @@index([organizationId, status, startsAt, endsAt])
+  @@index([offerId, offerVersion])
+}
+
+model EntitlementUsage {
+  id             String               @id @default(cuid())
+  scopeType      EntitlementScopeType
+  scopeId        String
+  entitlementKey String
+  used           BigInt               @default(0)
+  createdAt      DateTime             @default(now())
+  updatedAt      DateTime             @updatedAt
+
+  definition EntitlementDefinition @relation(fields: [entitlementKey], references: [key], onDelete: Restrict)
+
+  @@unique([scopeType, scopeId, entitlementKey])
+  @@index([entitlementKey, scopeType])
 }

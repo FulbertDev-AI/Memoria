@@ -7,6 +7,10 @@ export async function getSession() {
   return auth.api.getSession({ headers: await headers() });
 }
 
+export async function getRequestSession(requestHeaders: Headers) {
+  return auth.api.getSession({ headers: requestHeaders });
+}
+
 export async function requireUser() {
   const session = await getSession();
 

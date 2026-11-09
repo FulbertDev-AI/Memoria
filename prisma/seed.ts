@@ -1,14 +1,15 @@
 import { PrismaClient } from "@prisma/client";
+import { seedCommercialCatalog } from "../src/features/commercial/catalog";
 
 const prisma = new PrismaClient();
 
 async function main() {
+  await seedCommercialCatalog(prisma);
+
   const email = process.env.SEED_ADMIN_EMAIL?.trim().toLowerCase();
 
   if (!email) {
-    throw new Error(
-      "Définissez SEED_ADMIN_EMAIL pour promouvoir le compte administrateur.",
-    );
+    return;
   }
 
   const user = await prisma.user.findUnique({ where: { email } });
